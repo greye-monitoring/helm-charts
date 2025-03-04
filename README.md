@@ -17,3 +17,6 @@ Add the GREYE repository:
 helm repo add greye https://ftrigari.github.io/helm-charts
 ```
 
+## Links
+
+- [GitHub Repository](https://github.com/greye-monitoring/helm-charts)
