@@ -63,4 +63,4 @@ Note: The chart includes a pre-delete hook that cleans up resources by making a 
 
 ## Links
 
-- [GitHub Repository](https://github.com/ftrigari/helm-charts)
+- [GitHub Repository](https://github.com/greye-monitoring/helm-charts)
