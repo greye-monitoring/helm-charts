@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "greye.fullname" . }}-number-of-services-monitored"
+  labels:
+    {{- include "greye.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+spec:
+  serviceAccountName: {{ .Release.Name }}
+  initContainers:
+    - name: get-services
+      image: bitnami/kubectl:latest
+      command: ['sh', '-c']
+      args:
+        - |
+          set -e
+          kubectl get services -A -o yaml | grep -i "ge-enabled: \"true\"" | wc -l > /cache/nServices.txt || exit 1
+          echo "Service account permissions verified!"
+      volumeMounts:
+        - mountPath: /cache
+          name: temp-volume
+
+  containers:
+    - name: test-connection
+      image: ftrigari/jq:latest
+      command: ['sh', '-c']
+      args:
+        - |
+          set -e
+          i=0
+          counter=0
+          while [ $i -lt {{ .Values.replicaCount }} ]; do
+            wget http://greye-$i.{{ include "greye.fullname" . }}:{{ .Values.service.port }}/api/v1/application/monitor  || exit 1
+            nFiles=$(cat monitor | jq '. | length')
+            echo "greye-$i pods has $nFiles to monitor"
+            counter=$((counter+nFiles))
+            rm monitor
+            i=$((i+1))
+          done
+          nServices=$(cat "/cache/nServices.txt")
+          echo $counter
+          echo $nServices
+
+          echo "greye monitoring $counter"
+          echo "there are $nServices services to monitor"
+
+          if [ $counter -ne $nServices ]; then
+            echo "The number of service monitored are different to service under monitoring!"
+            exit 1
+          fi
+          echo "Everything is working fine!"
+      volumeMounts:
+        - mountPath: /cache
+          name: temp-volume
+  restartPolicy: Never
+
+
+  volumes:
+    - name: temp-volume
+      emptyDir:
+        sizeLimit: 50Mi
+        medium: Memory

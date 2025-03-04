@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "greye.fullname" . }}
+  labels:
+    {{- include "greye.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+spec:
+  template:
+    metadata:
+      name: "remove-greye"
+      labels:
+        {{- include "greye.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: remove-greye
+          image: "alpine/curl"
+          command: ["/bin/sh", "-c", 'curl -X DELETE http://{{ include "greye.fullname" . }}-0.{{ include "greye.fullname" . }}:{{ .Values.service.port }}/api/v1/cluster']

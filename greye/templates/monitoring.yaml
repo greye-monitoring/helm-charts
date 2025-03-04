@@ -1,0 +1,21 @@
+
+{{- if .Values.monitoring.enabled -}}
+
+
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "greye.fullname" . }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  endpoints:
+    - path: /metrics
+      port: http
+  selector:
+    matchLabels:
+      greye-application: "true"
+
+
+{{- end }}

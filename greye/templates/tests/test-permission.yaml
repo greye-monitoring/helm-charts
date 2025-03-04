@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "greye.fullname" . }}-test-permissions"
+  labels:
+    {{- include "greye.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "10"
+spec:
+  serviceAccountName: {{ include "greye.serviceAccountName" . }}
+  containers:
+    - name: test-permissions
+      image: bitnami/kubectl:latest
+      command: ['sh', '-c']
+      args:
+        - |
+          set -e
+          echo "Testing service account permissions..."
+          kubectl get services --namespace={{ .Release.Namespace }} || exit 1
+          echo "Service account permissions verified!"
+  restartPolicy: Never
