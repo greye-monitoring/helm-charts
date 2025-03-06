@@ -109,6 +109,8 @@ notification: {}
 protocol: []
 
 application:
+  authentication:
+    - "basicAuth"
   intervalSeconds: 30
   timeoutSeconds: 5
   protocol: "http"
@@ -124,6 +126,9 @@ cluster:
   maxFailedRequests: 3
   myIp:
   ip: []
+
+server:
+  logLevel: "info"
 
 monitoring:
     enabled: true
