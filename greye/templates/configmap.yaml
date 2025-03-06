@@ -8,7 +8,7 @@ data:
   config.json: |
     {
       "server": {
-        "logLevel": "error",
+        "logLevel": "{{ .Values.server.logLevel }}",
         "port": {{ .Values.service.targetPort }},
         "applicationName": "{{ include "greye.fullname" . }}",
         "serviceHAName": "{{ include "greye.fullname" . }}",
@@ -37,8 +37,14 @@ data:
         "method": "{{ .Values.application.method | default "GET" }}",
         "headers": "{{ .Values.application.headers | default "{}" }}",
         "body": "{{ .Values.application.body | default "{}" }}",
-        "port": {{ .Values.application.port | default 80 }},
-        "maxFailedRequests": {{ .Values.application.maxFailedRequests | default 3 }}
+        "port": {{ .Values.service.targetPort | default 80 }},
+        "maxFailedRequests": {{ .Values.application.maxFailedRequests | default 3 }},
+        "authentication": [
+          {{- range $index, $element := .Values.application.authentication }}
+            {{- if $index }}, {{ end }}
+          "{{ $element }}"
+          {{- end }}
+        ]
       },
       "cluster": {
         "ip": [
