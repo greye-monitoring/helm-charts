@@ -1,4 +1,4 @@
-    # GREYE Helm Chart
+# GREYE Helm Chart
 
 ## Introduction
 
